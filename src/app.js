@@ -1,22 +1,20 @@
 import express from "express";
+import databaseConnect from "./config/dbConnect.js";
+import item from "./models/Item.js";
+
+const connection = await databaseConnect();
+
+connection.on("error", (err) => {
+  console.error("error", err);
+});
+
+connection.once("open", () => {
+  console.log("Connection succesfull!");
+});
 
 const app = express();
 app.use(express.json());
 
-const items = [
-  {
-    id: 1,
-    name: "Handgun",
-    amount: 1,
-    description: "A handgun with firepower",
-  },
-  {
-    id: 2,
-    name: "Shotgun",
-    amount: 1,
-    description: "A shotgun with firepower",
-  },
-];
 
 const chest_items = [
   {
@@ -47,9 +45,9 @@ app.get("/", (req, res) => {
   res.status(200).send("Welcome to Resident Evil API! 🧟");
 });
 
-app.get("/:version/items", (req, res) => {
-  console.log(req.params.version);
-  res.status(200).json(items);
+app.get("/:version/items", async (req, res) => {
+  const listItems = await item.find({});
+  res.status(200).json(listItems);
 });
 
 app.get("/:version/item/:id", (req, res) => {
